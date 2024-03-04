@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Board.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Minesweeper1</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Board.java</span></div><h1>Board.java</h1><pre class="source lang-java linenums">import java.util.Random;
+public abstract class Board {
+
+
+    //instance variables
+    protected int width, height;
+    protected int numMines;
+    protected int numMarked;
+    protected int numUnknown;
+    protected boolean[][] mines;
+    protected int[][] board;
+    public static final int UNKNOWN = -1;
+    public static final int MARKED = -2;
+    public static final int MINE = -3;
+
+
+    //create a new game board
+<span class="fc" id="L18">    public Board(int width, int height, int numMines) {</span>
+
+        // Initialise instance variables
+<span class="fc" id="L21">        this.width = width;</span>
+<span class="fc" id="L22">        this.height = height;</span>
+<span class="fc" id="L23">        this.numMines = numMines;</span>
+<span class="fc" id="L24">        this.numMarked = 0;</span>
+<span class="fc" id="L25">        this.numUnknown = width * height;</span>
+
+        // Make arrays for game board and mines
+<span class="fc" id="L28">        mines = new boolean[width][height];</span>
+<span class="fc" id="L29">        board = new int[width][height];</span>
+
+        // Clear the board
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        for (int i = 0; i &lt; width; i++) {</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">            for (int j = 0; j &lt; height; j++) {</span>
+                //start with no mine in all the cells
+<span class="fc" id="L35">                mines[i][j] = false;</span>
+                //start with all the cells covered
+<span class="fc" id="L37">                board[i][j] = UNKNOWN;</span>
+            }
+        }
+
+        // Randomly place mines in the mines array.  The loop runs until numMines mines have
+        // been placed. It tries again if the chosen cell already contains a mine.
+<span class="fc" id="L43">        int cells = width * height;</span>
+<span class="fc" id="L44">        int temp = 0;</span>
+<span class="fc" id="L45">        Random rand = new Random();</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        while (temp &lt; numMines) {</span>
+<span class="fc" id="L48">            int cell = rand.nextInt();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">            cell = (cell &lt; 0 ? -cell : cell) % cells;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">            if (!mines[cell % width][cell / width]) {</span>
+<span class="fc" id="L51">                mines[cell % width][cell / width] = true;</span>
+<span class="fc" id="L52">                temp++;</span>
+            }
+<span class="fc" id="L54">        }</span>
+
+
+
+
+<span class="fc" id="L59">    }</span>
+
+    // PRINTS board for the user
+    public abstract void draw();
+
+    //reveals the cell (could be a mine or an integer) uses coordinate system
+    //this only looks at cells which are still unknown
+    public int reveal(int x, int y) {
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        switch (board[x][y]) {</span>
+           // case MARKED:
+                // If the cell was marked, it decrements the counter of marked cells
+             //   numMarked--;
+            case UNKNOWN:
+                // if the cell was unknown, it decrements the counter of unknown cells
+                // it also checks the element in the mines array
+<span class="nc" id="L74">                numUnknown--;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                if (mines[x][y]) {</span>
+<span class="nc" id="L76">                    board[x][y] = MINE;</span>
+                } else {
+                    // Looks at how many mines next door
+<span class="nc" id="L79">                    board[x][y] = closeMines(x, y);</span>
+                }
+                break;
+        }
+        // Return the revealed value
+<span class="nc" id="L84">        return board[x][y];</span>
+    }
+
+// REVEAL MORE METHOD
+// If a neighbouring cell is unknown and does not have a mine it is revealed
+// and then if that revealed cell is empty and has no neighbouring mines
+// then the method is called recursively on that cell too
+
+    public void revealMore(int x, int y) {
+        int minx, miny, maxx, maxy;
+<span class="nc" id="L94">        int result = 0;</span>
+
+        // Stops at edges of board
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        minx = (x &lt;= 0 ? 0 : x - 1);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        miny = (y &lt;= 0 ? 0 : y - 1);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        maxx = (x &gt;= width - 1 ? width : x + 2);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        maxy = (y &gt;= height - 1 ? height : y + 2);</span>
+
+        // Loop over all surrounding cells
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (int i = minx; i &lt; maxx; i++) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            for (int j = miny; j &lt; maxy; j++) {</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">                if (!mines[i][j] &amp;&amp; board[i][j] == UNKNOWN) {</span>
+<span class="nc" id="L106">                    reveal(i, j);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                    if (board[i][j] == 0) {</span>
+                        // Call itself recursively
+<span class="nc" id="L109">                        revealMore(i, j);</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L114">    }</span>
+
+
+    //MARK A CELL - i.e. FLAG A CELL
+    public boolean mark(int x, int y) {
+<span class="nc bnc" id="L119" title="All 4 branches missed.">        if ((numMines - numMarked) &gt; 0 &amp;&amp; board[x][y] == UNKNOWN) {</span>
+<span class="nc" id="L120">            board[x][y] = MARKED;</span>
+<span class="nc" id="L121">            numMarked++;</span>
+<span class="nc" id="L122">            return true;</span>
+        } else {
+<span class="nc" id="L124">            return false;</span>
+        }
+    }
+
+    //UNMARK A CELL
+
+    public boolean unmark(int x, int y) {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (board[x][y] == MARKED) {</span>
+<span class="nc" id="L132">            board[x][y] = UNKNOWN;</span>
+<span class="nc" id="L133">            numMarked--;</span>
+<span class="nc" id="L134">            return true;</span>
+        } else {
+<span class="nc" id="L136">            return false;</span>
+        }
+    }
+
+    // Return stuff about the game board, because they are all protected
+    public int getWidth() {
+<span class="nc" id="L142">        return width;</span>
+    }
+    public int getHeight() {
+<span class="nc" id="L145">        return height;</span>
+    }
+    public int getMines() {
+<span class="fc" id="L148">        return numMines;</span>
+    }
+    public int getMarked() {
+<span class="nc" id="L151">        return numMarked;</span>
+    }
+    public int getUnknown() {
+<span class="nc" id="L154">        return numUnknown;</span>
+    }
+
+    private int closeMines(int x, int y) {
+        int minx, miny, maxx, maxy;
+<span class="nc" id="L159">        int result = 0;</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        minx = (x &lt;= 0 ? 0 : x - 1);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        miny = (y &lt;= 0 ? 0 : y - 1);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        maxx = (x &gt;= width - 1 ? width : x + 2);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        maxy = (y &gt;= height - 1 ? height : y + 2);</span>
+
+        //check for mines
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        for (int i = minx; i &lt; maxx; i++) {</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            for (int j = miny; j &lt; maxy; j++) {</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                if (mines[i][j]) {</span>
+<span class="nc" id="L169">                    result++;</span>
+                }
+            }
+        }
+<span class="nc" id="L173">        return result;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

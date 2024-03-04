@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Minesweeper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Minesweeper1</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Minesweeper.java</span></div><h1>Minesweeper.java</h1><pre class="source lang-java linenums">import java.io.*;
+
+public class Minesweeper {
+    private Board board;
+    private StreamTokenizer tok;
+    private boolean done, quit, win;
+    private int lastCell;
+
+<span class="nc" id="L9">    public Minesweeper (int width, int height, int mines) {</span>
+
+<span class="nc" id="L11">        board = new TextBoard(width, height, mines);</span>
+<span class="nc" id="L12">        tok = new StreamTokenizer(new InputStreamReader(System.in));</span>
+<span class="nc" id="L13">        done = win = quit = false;</span>
+
+<span class="nc" id="L15">    }</span>
+
+    public void play() throws IOException {
+<span class="nc" id="L18">        long startTime = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        while (!done) {</span>
+<span class="nc" id="L20">            board.draw();</span>
+<span class="nc" id="L21">            System.out.print(&quot;Command: &quot;);</span>
+<span class="nc" id="L22">            System.out.flush();</span>
+<span class="nc" id="L23">            tok.nextToken();</span>
+
+<span class="nc bnc" id="L25" title="All 4 branches missed.">            switch (tok.ttype) {</span>
+                case StreamTokenizer.TT_WORD:
+<span class="nc" id="L27">                    doCommand();</span>
+<span class="nc" id="L28">                    break;</span>
+                case StreamTokenizer.TT_EOL:
+<span class="nc" id="L30">                    continue;</span>
+                case StreamTokenizer.TT_EOF:
+<span class="nc" id="L32">                    done=quit=true;</span>
+                    break;
+
+            }
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">            if (board.getUnknown() == board.getMines()) {</span>
+<span class="nc" id="L38">                done = win = true;</span>
+            }
+<span class="nc bnc" id="L40" title="All 2 branches missed.">            else if (lastCell == Board.MINE) {</span>
+<span class="nc" id="L41">                done = true;</span>
+            }
+
+<span class="nc" id="L44">            System.in.skip(System.in.available());</span>
+        }
+<span class="nc" id="L46">        long elapsedTime = System.currentTimeMillis() - startTime;</span>
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        for (int i = 0; i &lt; board.getWidth(); i++) {</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            for (int j = 0; j &lt; board.getHeight(); j++) {</span>
+<span class="nc" id="L50">                board.reveal(i, j);</span>
+            }
+        }
+
+<span class="nc" id="L54">        board.draw();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (win) {</span>
+<span class="nc" id="L56">            System.out.println(&quot;Congratulations!&quot;);</span>
+        }
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        else if (!quit) {</span>
+<span class="nc" id="L59">            System.out.println(&quot;Bad luck&quot;);</span>
+        }
+<span class="nc" id="L61">        System.out.println(&quot;Total game time: &quot;+(elapsedTime/1000)+&quot; seconds&quot;);</span>
+<span class="nc" id="L62">    }</span>
+
+    private void doCommand() throws IOException {
+        int x, y;
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (tok.sval.equals(&quot;reveal&quot;)) {</span>
+<span class="nc" id="L67">            tok.nextToken();</span>
+<span class="nc" id="L68">            x = (int)tok.nval;</span>
+<span class="nc" id="L69">            tok.nextToken();</span>
+<span class="nc" id="L70">            y = (int)tok.nval;</span>
+<span class="nc" id="L71">            lastCell = board.reveal(x, y);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (lastCell == 0) {</span>
+<span class="nc" id="L73">                board.revealMore(x, y);</span>
+            }
+        }
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        else if (tok.sval.equals(&quot;mark&quot;)) {</span>
+<span class="nc" id="L77">            tok.nextToken();</span>
+<span class="nc" id="L78">            x = (int)tok.nval;</span>
+<span class="nc" id="L79">            tok.nextToken();</span>
+<span class="nc" id="L80">            y = (int)tok.nval;</span>
+<span class="nc" id="L81">            board.mark(x, y);</span>
+        }
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        else if (tok.sval.equals(&quot;unmark&quot;)) {</span>
+<span class="nc" id="L84">            tok.nextToken();</span>
+<span class="nc" id="L85">            x = (int)tok.nval;</span>
+<span class="nc" id="L86">            tok.nextToken();</span>
+<span class="nc" id="L87">            y = (int)tok.nval;</span>
+<span class="nc" id="L88">            board.unmark(x, y);</span>
+        }
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        else if (tok.sval.equals(&quot;quit&quot;)) {</span>
+<span class="nc" id="L91">            quit = done = true;</span>
+        }
+<span class="nc" id="L93">    }</span>
+
+    public static void main(String[] args) throws IOException {
+
+        Minesweeper game;
+<span class="nc" id="L98">            int width = 10;</span>
+<span class="nc" id="L99">            int height = 10;</span>
+<span class="nc" id="L100">            int mines = 5;</span>
+<span class="nc" id="L101">            game = new Minesweeper(width, height, mines);</span>
+<span class="nc" id="L102">            game.play();</span>
+
+<span class="nc" id="L104">    }</span>
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

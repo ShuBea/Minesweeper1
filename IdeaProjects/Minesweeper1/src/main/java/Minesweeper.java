@@ -6,7 +6,7 @@ public class Minesweeper {
     private boolean done, quit, win;
     private int lastCell;
 
-    public Minesweeper(int width, int height, int mines) {
+    public Minesweeper (int width, int height, int mines) {
 
         board = new TextBoard(width, height, mines);
         tok = new StreamTokenizer(new InputStreamReader(System.in));

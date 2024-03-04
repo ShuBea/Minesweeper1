@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextBoard.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Minesweeper1</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">TextBoard.java</span></div><h1>TextBoard.java</h1><pre class="source lang-java linenums">//TextBoard is a subclass of Board, so it has access to the protected instance variables of Board (not private things)
+public class TextBoard extends Board {
+
+    // Maximum length of string to hold column/row numbers
+    private int colLength, rowLength;
+    // printable versions of the numbers
+    private String[] colNums, rowNums;
+    //space for headings
+    private String spacer;
+
+    public TextBoard(int width, int height, int numMines) {
+<span class="fc" id="L12">        super(width, height, numMines);</span>
+<span class="fc" id="L13">        colLength = Integer.toString(width - 1).length();</span>
+<span class="fc" id="L14">        rowLength = Integer.toString(height-1).length();</span>
+<span class="fc" id="L15">        colNums = new String[width];</span>
+<span class="fc" id="L16">        rowNums = new String[height];</span>
+
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        for (int i = 0; i &lt; width; i++) {</span>
+<span class="fc" id="L19">            StringBuffer col = new StringBuffer(Integer.toString(i));</span>
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">            while (col.length() &lt; colLength) {</span>
+<span class="nc" id="L21">                col.insert(0, ' ');</span>
+            }
+<span class="fc" id="L23">            colNums[i] = col.toString();</span>
+        }
+
+<span class="fc" id="L26">        StringBuffer spaces = new StringBuffer();</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        for (int i = 0; i &lt; rowLength + 2; i++) {</span>
+<span class="fc" id="L28">            spaces.append(' ');</span>
+        }
+<span class="fc" id="L30">        spacer = spaces.toString();</span>
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        for (int i = 0; i &lt; height; i++) {</span>
+<span class="fc" id="L33">            StringBuffer row = new StringBuffer(Integer.toString(i));</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            while (row.length() &lt;= rowLength) {</span>
+<span class="fc" id="L35">                row.insert(0, ' ');</span>
+            }
+<span class="fc" id="L37">            row.append(' ');</span>
+<span class="fc" id="L38">            rowNums[i] = row.toString();</span>
+        }
+<span class="fc" id="L40">    }</span>
+
+    public void draw() {
+<span class="nc" id="L43">        System.out.println();</span>
+
+<span class="nc bnc" id="L45" title="All 2 branches missed.">       for (int i = 0; i &lt; colLength; i++) {</span>
+<span class="nc" id="L46">            System.out.print(spacer);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            for (int j = 0; j &lt; width; j++) {</span>
+<span class="nc" id="L48">                System.out.print(&quot; &quot; + colNums[ j ].charAt( i ) + &quot; &quot;);</span>
+            }
+<span class="nc" id="L50">            System.out.println();</span>
+        }
+
+<span class="nc" id="L53">        System.out.println();</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (int i = 0; i &lt; height; i++) {</span>
+<span class="nc" id="L56">            System.out.print(rowNums[i]);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (int j = 0; j &lt; width; j++) {</span>
+<span class="nc bnc" id="L58" title="All 6 branches missed.">                switch (board[j][i]) {</span>
+                    case UNKNOWN:
+<span class="nc" id="L60">                        System.out.print(&quot; # &quot;);</span>
+<span class="nc" id="L61">                        break;</span>
+                    case MARKED:
+<span class="nc" id="L63">                        System.out.print(&quot; X &quot;);</span>
+<span class="nc" id="L64">                        break;</span>
+                    case MINE:
+<span class="nc" id="L66">                        System.out.print(&quot; * &quot;);</span>
+<span class="nc" id="L67">                        break;</span>
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+<span class="nc" id="L77">                        System.out.print(board[j][i]);</span>
+<span class="nc" id="L78">                        break;</span>
+                    case 0:
+<span class="nc" id="L80">                        System.out.print(&quot;.&quot;);</span>
+                        break;
+                }
+            }
+<span class="nc" id="L84">            System.out.println(rowNums[i]);</span>
+        }
+
+
+<span class="nc" id="L88">        System.out.println();</span>
+
+<span class="nc" id="L90">        System.out.println(&quot;Mines remaining: &quot; + (getMines() - getMarked()));</span>
+
+<span class="nc" id="L92">        System.out.println();</span>
+<span class="nc" id="L93">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
