@@ -1,34 +1,28 @@
 import java.util.Random;
-public abstract class Board {
 
-
-    //instance variables
-    protected int width, height;
-    protected int numMines;
-    protected int numMarked;
-    protected int numUnknown;
-    protected boolean[][] mines;
-    protected int[][] board;
+public class Board {
+    // instance variables
+    int width, height;
+    int numMines;
+    int numUnknown;
+    boolean[][] mines;
+    int[][] board;
     public static final int UNKNOWN = -1;
-    public static final int MARKED = -2;
-    public static final int MINE = -3;
+    public static final int MINE = -2;
 
 
-    //create a new game board
+    //create a new game board -  this method is called during the minesweeper method
     public Board(int width, int height, int numMines) {
-
-        // Initialise instance variables
+        //set up the size of the games board, the number os mines, the number of unknown cells,
+        // the game board array and mines array
         this.width = width;
         this.height = height;
         this.numMines = numMines;
-        this.numMarked = 0;
         this.numUnknown = width * height;
-
-        // Make arrays for game board and mines
         mines = new boolean[width][height];
         board = new int[width][height];
 
-        // Clear the board
+        // Clear the game board
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 //start with no mine in all the cells
@@ -38,45 +32,34 @@ public abstract class Board {
             }
         }
 
-        // Randomly place mines in the mines array.  The loop runs until numMines mines have
-        // been placed. It tries again if the chosen cell already contains a mine.
+        // Randomly place mines in the mines array
         int cells = width * height;
-        int temp = 0;
+        int initial = 0;
         Random rand = new Random();
-
-        while (temp < numMines) {
+        while (initial < numMines) {
             int cell = rand.nextInt();
             cell = (cell < 0 ? -cell : cell) % cells;
             if (!mines[cell % width][cell / width]) {
                 mines[cell % width][cell / width] = true;
-                temp++;
+                initial++;
             }
         }
 
-
-
-
     }
 
-    // PRINTS board for the user
-    public abstract void draw();
 
-    //reveals the cell (could be a mine or an integer) uses coordinate system
-    //this only looks at cells which are still unknown
+    //reveal method
     public int reveal(int x, int y) {
         switch (board[x][y]) {
-           // case MARKED:
-                // If the cell was marked, it decrements the counter of marked cells
-             //   numMarked--;
             case UNKNOWN:
-                // if the cell was unknown, it decrements the counter of unknown cells
+                // if the cell is unknown, it decrements the counter of unknown cells
                 // it also checks the element in the mines array
                 numUnknown--;
                 if (mines[x][y]) {
                     board[x][y] = MINE;
                 } else {
                     // Looks at how many mines next door
-                    board[x][y] = closeMines(x, y);
+                    board[x][y] = nearbyMines(x, y);
                 }
                 break;
         }
@@ -84,26 +67,26 @@ public abstract class Board {
         return board[x][y];
     }
 
+
 // REVEAL MORE METHOD
 // If a neighbouring cell is unknown and does not have a mine it is revealed
-// and then if that revealed cell is empty and has no neighbouring mines
-// then the method is called recursively on that cell too
+// and then if that revealed cell is a zero then the method is called recursively on that cell too
 
     public void revealMore(int x, int y) {
         int minx, miny, maxx, maxy;
-        int result = 0;
-
-        // Stops at edges of board
+        // sets limits for edge of board
         minx = (x <= 0 ? 0 : x - 1);
         miny = (y <= 0 ? 0 : y - 1);
         maxx = (x >= width - 1 ? width : x + 2);
         maxy = (y >= height - 1 ? height : y + 2);
 
-        // Loop over all surrounding cells
+        // Loop surrounding cells
+        // if there is no mine and it is covered, then it will be revealed
         for (int i = minx; i < maxx; i++) {
             for (int j = miny; j < maxy; j++) {
                 if (!mines[i][j] && board[i][j] == UNKNOWN) {
                     reveal(i, j);
+                    //if the cell is 0 then it will do reveal more on itself
                     if (board[i][j] == 0) {
                         // Call itself recursively
                         revealMore(i, j);
@@ -113,31 +96,6 @@ public abstract class Board {
         }
     }
 
-
-    //MARK A CELL - i.e. FLAG A CELL
-    public boolean mark(int x, int y) {
-        if ((numMines - numMarked) > 0 && board[x][y] == UNKNOWN) {
-            board[x][y] = MARKED;
-            numMarked++;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    //UNMARK A CELL
-
-    public boolean unmark(int x, int y) {
-        if (board[x][y] == MARKED) {
-            board[x][y] = UNKNOWN;
-            numMarked--;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Return stuff about the game board, because they are all protected
     public int getWidth() {
         return width;
     }
@@ -147,31 +105,73 @@ public abstract class Board {
     public int getMines() {
         return numMines;
     }
-    public int getMarked() {
-        return numMarked;
-    }
     public int getUnknown() {
         return numUnknown;
     }
 
-    private int closeMines(int x, int y) {
+
+    //nearby mines method - finds how many mines are in the neighbouring 8 cells
+    public int nearbyMines(int x, int y) {
+        int res = 0;
         int minx, miny, maxx, maxy;
-        int result = 0;
+        // sets limits for edge of board
         minx = (x <= 0 ? 0 : x - 1);
         miny = (y <= 0 ? 0 : y - 1);
         maxx = (x >= width - 1 ? width : x + 2);
         maxy = (y >= height - 1 ? height : y + 2);
 
-        //check for mines
+        //loops all neighbouring cells and checks for mines
         for (int i = minx; i < maxx; i++) {
             for (int j = miny; j < maxy; j++) {
                 if (mines[i][j]) {
-                    result++;
+                    res++;
                 }
             }
         }
-        return result;
+        // returns the number of mines in the surrounding 8 cells
+        return res;
     }
 
 
+    // Draws board for the user
+    String[] rowNumbers = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10"};
+    public void draw() {
+        System.out.println();
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                switch (board[i][j]) {
+                    case UNKNOWN:
+                        System.out.print(" - ");
+                        break;
+                    case MINE:
+                        System.out.print(" * ");
+                        break;
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                        System.out.print(" " + board[i][j] + " ");
+                        break;
+                    case 0:
+                        System.out.print(" 0 ");
+                        break;
+                }
+            }
+            System.out.println(rowNumbers[j]);
+        }
+
+
+        System.out.println();
+
+        System.out.println("Number of mines" + (numMines));
+
+        System.out.println();
+    }
+
 }
+
+
