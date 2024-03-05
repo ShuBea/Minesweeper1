@@ -1,42 +1,47 @@
 import java.util.Scanner;
-
 public class Minesweeper {
     Board board;
     boolean done, quit, win;
     int selectedCell;
     Scanner read = new Scanner(System.in);
 
+    //creates a new game - constructor for the minesweeper class
     public Minesweeper(int width, int height, int mines) {
         board = new Board(width, height, mines);
-        quit = false;
         win = false;
         done = false;
+        quit=false;
     }
 
+    //plays the game and doesn't stop until quit or win or lose (aka done)
     public void play(){
+        //starts timer
         long startTime = System.currentTimeMillis();
+        //whilst not done...only done if quit
         while (!done) {
             board.draw();
-            System.out.print("Command: ");
+            System.out.print("reveal or quit? ");
             String answer = read.nextLine();
             switch (answer) {
                 case "reveal":
                     doCommand();
                     break;
                 case "quit":
-                    done = quit =  true;
+                    done =  true;
                     break;
             }
 
+            //after every go checks to see if won or lost which redefines done or not done
             if (board.getUnknown() == board.getMines()) {
                 done = win = true;
             } else if (selectedCell == board.MINE) {
                 done = true;
             }
         }
+        //timer ends
         long elapsedTime = System.currentTimeMillis() - startTime;
 
-        //reveal everything when finished
+        //reveal everything when done
         for(int i = 0; i<board.getWidth();i++) {
             for (int j = 0; j < board.getHeight(); j++) {
                 board.reveal(i, j);
@@ -44,6 +49,7 @@ public class Minesweeper {
         }
         board.draw();
 
+        // final messages
         if(win) {
             System.out.println("Winner!");
         }
@@ -54,7 +60,7 @@ public class Minesweeper {
     }
 
 
-
+    //this is for the reveal cell
     public void doCommand() {
         int x, y;
         System.out.print("x coordinate: ");
@@ -71,10 +77,11 @@ public class Minesweeper {
 
     public static void main(String[] args){
 
-        Minesweeper game;
         int width = 10;
         int height = 10;
         int mines = 10;
+
+        Minesweeper game;
         game = new Minesweeper(width, height, mines);
         game.play();
 

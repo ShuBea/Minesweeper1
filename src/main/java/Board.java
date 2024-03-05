@@ -167,7 +167,7 @@ public class Board {
 
         System.out.println();
 
-        System.out.println("Number of mines" + (numMines));
+        System.out.println("Number of mines: " + (numMines));
 
         System.out.println();
     }
