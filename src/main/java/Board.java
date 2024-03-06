@@ -22,7 +22,7 @@ public class Board {
         mines = new boolean[width][height];
         board = new int[width][height];
 
-        // Clear the game board
+        // Clear the game board before playing
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 //start with no mine in all the cells
@@ -32,17 +32,18 @@ public class Board {
             }
         }
 
-        // Randomly place mines in the mines array
-        int cells = width * height;
-        int initial = 0;
+        //Randomly place mines in the mines array
+        int count = 0;
         Random rand = new Random();
-        while (initial < numMines) {
-            int cell = rand.nextInt();
-            cell = (cell < 0 ? -cell : cell) % cells;
-            if (!mines[cell % width][cell / width]) {
-                mines[cell % width][cell / width] = true;
-                initial++;
+        while (count < numMines) {
+            int randomRow = rand.nextInt(width-1);
+            int randomCol = rand.nextInt(height-1);
+            if (!mines[randomRow][randomCol]) {
+                    mines[randomRow][randomCol] = true;
+                    count++;
             }
+
+
         }
 
     }
@@ -81,7 +82,7 @@ public class Board {
         maxy = (y >= height - 1 ? height : y + 2);
 
         // Loop surrounding cells
-        // if there is no mine and it is covered, then it will be revealed
+        // if there is no mine, and it is covered, then it will be revealed
         for (int i = minx; i < maxx; i++) {
             for (int j = miny; j < maxy; j++) {
                 if (!mines[i][j] && board[i][j] == UNKNOWN) {
@@ -134,17 +135,29 @@ public class Board {
 
 
     // Draws board for the user
-    String[] rowNumbers = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10"};
     public void draw() {
+        int rows = height; // Number of rows
+        int cols = width; // Number of columns
+
+        // Print column numbers
+        System.out.print("  ");
+        for (int j = 0; j < cols; j++) {
+            System.out.print(String.format("%02d", j) + " ");
+        }
         System.out.println();
-        for (int j = 0; j < height; j++) {
-            for (int i = 0; i < width; i++) {
+
+        // Print rows with row numbers
+        for (int i = 0; i < rows; i++) {
+            System.out.print(String.format("%02d", i) + " ");
+            for (int j = 0; j < cols; j++) {
+
+
                 switch (board[i][j]) {
                     case UNKNOWN:
-                        System.out.print(" - ");
+                        System.out.print("-  ");
                         break;
                     case MINE:
-                        System.out.print(" * ");
+                        System.out.print("*  ");
                         break;
                     case 1:
                     case 2:
@@ -154,24 +167,17 @@ public class Board {
                     case 6:
                     case 7:
                     case 8:
-                        System.out.print(" " + board[i][j] + " ");
+                        System.out.print( board[i][j] + "  ");
                         break;
                     case 0:
-                        System.out.print(" 0 ");
+                        System.out.print("0" + "  ");
                         break;
                 }
             }
-            System.out.println(rowNumbers[j]);
+
+            System.out.println();
         }
-
-
-        System.out.println();
-
-        System.out.println("Number of mines: " + (numMines));
-
-        System.out.println();
     }
 
+
 }
-
-
